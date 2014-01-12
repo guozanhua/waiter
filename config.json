@@ -1,0 +1,19 @@
+{
+	// server description
+	"server_description": "go dev server",
+
+	"max_clients": 12,
+
+	// the address of the master server to report to (also the one used for global auth)
+	"master_server": "sauerbraten.org",
+
+	// port to use at the master server
+	"master_server_port": 28787,
+
+	// local auth domains
+	// first one will be used as primary one, e.g. when you enable auth-on-connect and the server is in private mode
+	//"server_auth_domains": ["dev", "dev:registered_users", "dev:masters", "dev:admins"]
+	"server_auth_domains": [""]
+
+	// ...
+}

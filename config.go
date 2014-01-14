@@ -7,6 +7,8 @@ const (
 type Config struct {
 	ServerDescription string   `json:"server_description"`
 	MaxClients        int      `json:"max_clients"`
+	ListenAddress     string   `json:"listen_address"`
+	ListenPort        int      `json:"listen_port"`
 	MasterServer      string   `json:"master_server"`
 	MasterServerPort  int      `json:"master_server_port"`
 	ServerAuthDomains []string `json:"server_auth_domains"`

@@ -13,7 +13,11 @@
 	// local auth domains
 	// first one will be used as primary one, e.g. when you enable auth-on-connect and the server is in private mode
 	//"server_auth_domains": ["dev", "dev:registered_users", "dev:masters", "dev:admins"]
-	"server_auth_domains": [""]
+	"server_auth_domains": [""],
 
-	// ...
+	// listen address
+	"listen_address": "",
+
+	// listen port
+	"listen_port": 28785
 }

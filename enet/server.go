@@ -8,7 +8,7 @@ package enet
 
 ENetHost * server;
 
-int startServer() {
+int startServer(int port) {
 	if (enet_initialize() != 0) {
 		fprintf (stderr, "An error occurred while initializing ENet.\n");
 		return 1;
@@ -20,8 +20,8 @@ int startServer() {
 	// Bind the server to the default localhost
 	address.host = ENET_HOST_ANY;
 
-	// Bind the server to port 1234
-	address.port = 1234;
+	// Bind the server to port
+	address.port = port;
 
 	server = enet_host_create(&address, 2, 2, 0, 0);
 	if (server == NULL) {
@@ -59,8 +59,8 @@ import (
 	"errors"
 )
 
-func StartServer() error {
-	errCode := C.startServer()
+func StartServer(lport int) error {
+	errCode := C.startServer(C.int(lport))
 	if errCode != 0 {
 		return errors.New("an error occured running the C code")
 	}

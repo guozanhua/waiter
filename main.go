@@ -43,7 +43,7 @@ func init() {
 }
 
 func main() {
-	err := enet.StartServer()
+	err := enet.StartServer(config.ListenPort)
 	if err != nil {
 		log.Fatalln(err)
 	}

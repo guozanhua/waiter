@@ -65,6 +65,8 @@ func addClient(peer enet.Peer) *Client {
 
 	clients[client.CN] = client
 
+	log.Println("added client:", client, "with peer", client.Peer)
+
 	return client
 }
 
@@ -208,9 +210,10 @@ func (client *Client) informOfDisconnectingClient(otherClient *Client, reason Di
 	// TOOD: send a server message with the disconnect reason in case it's not a normal leave
 }
 
-// Resets the client object.
+// Resets the client object. Keeps the client's CN, so low CNs can be reused.
 func (client *Client) reset() {
-	client.CN = -1
+	log.Println("reset:", client.CN)
+
 	client.Name = ""
 	client.PlayerModel = -1
 	client.Joined = false

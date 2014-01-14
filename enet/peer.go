@@ -10,6 +10,7 @@ import (
 	"errors"
 	"net"
 	"reflect"
+	"sync"
 	"unsafe"
 )
 
@@ -29,6 +30,7 @@ const (
 )
 
 type Peer struct {
+	sync.Mutex
 	Address net.UDPAddr
 	State   PeerState
 	Data    unsafe.Pointer
@@ -74,7 +76,9 @@ func (p *Peer) Send(payload []byte, flags PacketFlag, channel uint8) {
 
 	packet := C.enet_packet_create(unsafe.Pointer(&payload[0]), C.size_t(len(payload)), C.enet_uint32(flags))
 
+	p.Lock()
 	C.enet_peer_send(p.cPeer, C.enet_uint8(channel), packet)
+	p.Unlock()
 
 	Flush()
 }

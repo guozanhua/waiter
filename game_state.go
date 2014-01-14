@@ -1,7 +1,7 @@
 package main
 
 // a player's position in the map/world
-type PlayerPosition []byte
+type PlayerPosition Packet
 
 // client's state
 type ClientState uint

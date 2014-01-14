@@ -49,7 +49,7 @@ func main() {
 	}
 
 	for {
-		event := enet.Service(1000)
+		event := enet.Service(5)
 
 		switch event.Type {
 		case enet.EVENT_TYPE_CONNECT:
@@ -73,42 +73,5 @@ func main() {
 			//log.Println("got:", event.Packet.Data)
 			parsePacket(*(*ClientNumber)(event.Peer.Data), event.ChannelId, Packet(event.Packet.Data))
 		}
-
-		if len(clients) > 0 {
-			sendworldstate()
-		}
-	}
-}
-
-func sendworldstate() {
-	worldState := []interface{}{}
-	for _, c := range clients {
-		if !c.InUse || len(c.GameState.Position) == 0 {
-			continue
-		}
-
-		log.Println("adding", c.CN, "to world state")
-
-		for _, p := range []byte(c.GameState.Position) {
-			worldState = append(worldState, p)
-			//log.Println("appending", p)
-		}
-	}
-
-	log.Println("world state", worldState)
-
-	for _, c := range clients {
-		if !c.InUse {
-			continue
-		}
-
-		// send on channel 0
-		sendf(c, false, 0, worldState...)
-
-		/*
-			if len(c.GameState.Position) != 0 {
-				c.GameState.Position = c.GameState.Position[0:0]
-			}
-		*/
 	}
 }

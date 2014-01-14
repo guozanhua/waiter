@@ -163,7 +163,7 @@ var ServerOnlyNMCs []NetworkMessageCode = []NetworkMessageCode{
 	N_DEMOPACKET,
 }
 
-// Checks is a NMC is valid coming from a certain client.
+// Checks if a NMC is valid coming from a certain client.
 func isValidNetworkMessageCode(nmc NetworkMessageCode, client *Client) bool {
 	if !client.Joined {
 		if client.HasToAuthForConnect {
@@ -171,7 +171,10 @@ func isValidNetworkMessageCode(nmc NetworkMessageCode, client *Client) bool {
 		} else {
 			return nmc == N_JOIN || nmc == N_PING
 		}
+	} else if nmc == N_JOIN || nmc == N_AUTHANS {
+		return false
 	}
+
 	for _, soNMC := range ServerOnlyNMCs {
 		if soNMC == nmc {
 			return false

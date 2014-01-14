@@ -125,6 +125,12 @@ func sendf(client *Client, reliable bool, channel uint8, args ...interface{}) {
 
 		case DisconnectReason:
 			p.putInt32(int32(v))
+
+		case Packet:
+			p = append(p, v...)
+
+		case PlayerPosition:
+			p = append(p, Packet(v)...)
 		}
 	}
 
@@ -152,7 +158,7 @@ outer:
 		case N_JOIN:
 			// client sends intro and wants to join the game
 			log.Println("received N_JOIN")
-			client.tryToJoin(p.popString(), p.popInt32(), p.popString(), p.popString(), p.popString())
+			client.join(p.popString(), p.popInt32(), p.popString(), p.popString(), p.popString())
 			break outer
 
 		case N_AUTHANS:
@@ -170,7 +176,7 @@ outer:
 			// client sending his position in the world
 			//log.Println("received N_POS")
 			log.Println("pos of", client.CN, N_POS, p)
-			client.GameState.Position = append([]byte{byte(N_POS)}, []byte(p)...)
+			client.GameState.Position = PlayerPosition(append([]byte{byte(N_POS)}, p...))
 			log.Println("pos of", client.CN, "set to", client.GameState.Position)
 			break outer
 

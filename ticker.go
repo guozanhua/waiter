@@ -19,14 +19,17 @@ const (
 func countDown(d time.Duration, interrupt chan bool, intermission chan bool) {
 	state.TimeLeft = int32(d.Nanoseconds() / 1000000)
 	end := time.After(d)
-	t := time.NewTicker(1 * time.Millisecond)
+	gameTimer := time.NewTicker(1 * time.Millisecond)
+	worldStateTimer := time.NewTicker(33 * time.Millisecond)
 
 	for {
 		select {
-		case <-t.C:
+		case <-gameTimer.C:
 			state.TimeLeft--
+		case <-worldStateTimer.C:
+			go sendWorldState()
 		case <-interrupt:
-			t.Stop()
+			gameTimer.Stop()
 			return
 		case <-end:
 			intermission <- true

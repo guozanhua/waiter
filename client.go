@@ -43,6 +43,7 @@ func addClient(peer enet.Peer) *Client {
 	// re-use unused client object with low cn
 	for _, client = range clients {
 		if !client.InUse {
+			client.InUse = true
 			return client
 		}
 	}
@@ -72,13 +73,14 @@ func addClient(peer enet.Peer) *Client {
 
 // send a packet to a client (reliable if desired) over the specified channel
 func (client *Client) send(p *Packet, reliable bool, channel uint8) {
-	log.Println(p, "→", client.Peer.Address.String())
+	log.Println(p.buf, "→", client.Peer.Address.String())
 
 	var flags enet.PacketFlag
 	if reliable {
 		flags |= enet.PACKET_FLAG_RELIABLE
 	}
-	client.Peer.Send(*p, flags, channel)
+
+	client.Peer.Send(p.buf, flags, channel)
 }
 
 // sends basic server info to the client
@@ -112,6 +114,7 @@ func (client *Client) sendWelcome() {
 	// send other players' state (frags, flags, etc.)
 	parts = append(parts, N_RESUME)
 	for _, c := range clients {
+		log.Println(c)
 		if c == client || !client.InUse {
 			continue
 		}

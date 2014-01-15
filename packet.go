@@ -5,6 +5,15 @@ type Packet struct {
 	pos int
 }
 
+func (p *Packet) len() int {
+	return len(p.buf)
+}
+
+// Appends a []byte to the end of the packet.
+func (p *Packet) putBytes(b []byte) {
+	p.buf = append(p.buf, b...)
+}
+
 // Encodes an int32 and appends it to the packet.
 func (p *Packet) putInt32(i int32) {
 	if i < 128 && i > -127 {
@@ -24,17 +33,11 @@ func (p *Packet) putString(s string) {
 	p.putInt32(0)
 }
 
-// Advances the position in the packet by n bytes, returns an error if the end of the packet is reached or crossed.
-func (p *Packet) step(n int) error {
-	pos += n
-	if pos >= len(p.buf) {
-		return errors.New("end of packet")
-	}
-}
-
 // Returns the first byte in the Packet.
-func (p *Packet) getByte() (byte, error) {
-	return p.buf[pos], p.step(1)
+func (p *Packet) getByte() byte {
+	b := p.buf[p.pos]
+	p.pos++
+	return b
 }
 
 // Decodes an int32 and increases the position index accordingly.

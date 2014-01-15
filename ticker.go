@@ -27,7 +27,8 @@ func countDown(d time.Duration, interrupt chan bool, intermission chan bool) {
 		case <-gameTimer.C:
 			state.TimeLeft--
 		case <-worldStateTimer.C:
-			go sendWorldState()
+			go sendPositions()
+			go sendNetworkMessages()
 		case <-interrupt:
 			gameTimer.Stop()
 			return

@@ -29,7 +29,6 @@ int startServer(int port) {
 		exit(EXIT_FAILURE);
 	}
 
-	printf("server listening on 0.0.0.0:1234\n");
 	return 0;
 }
 
@@ -59,22 +58,25 @@ import (
 	"errors"
 )
 
-func StartServer(lport int) error {
+func StartServer(lport int) (h Host, err error) {
 	errCode := C.startServer(C.int(lport))
 	if errCode != 0 {
-		return errors.New("an error occured running the C code")
+		err = errors.New("an error occured running the C code")
+		return
 	}
 
-	return nil
+	return
 }
 
-func Service(timeout int) Event {
+type Host struct{}
+
+func (h *Host) Service(timeout int) Event {
 	for {
 		var cEvent C.ENetEvent = C.service(C.int(timeout))
 		return eventFromCEvent(interface{}(&cEvent))
 	}
 }
 
-func Flush() {
+func (h *Host) Flush() {
 	C.flush()
 }

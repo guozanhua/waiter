@@ -56,12 +56,14 @@ func sendf(client *Client, reliable bool, channel uint8, args ...interface{}) {
 			p.putInt32(int32(v))
 
 		case Packet:
-			p = append(p, v...)
+			p.putBytes(v.buf)
 
 		case PlayerPosition:
-			p = append(p, Packet(v)...)
+			p.putBytes(v.buf)
 		}
 	}
+
+	log.Println(p, "→", client.CN)
 
 	client.send(&p, reliable, channel)
 }
@@ -75,7 +77,7 @@ func parsePacket(fromCN ClientNumber, channelId uint8, p Packet) {
 	client := clients[fromCN]
 
 outer:
-	for len(p) > 0 {
+	for p.len() > 0 {
 		nmc := NetworkMessageCode(p.getInt32())
 
 		if !isValidNetworkMessageCode(nmc, client) {
@@ -97,20 +99,19 @@ outer:
 
 		case N_PING:
 			// client pinging server
-			log.Println("received N_PING")
+			//log.Println("received N_PING")
 			p.getInt32()
 			break outer
 
 		case N_POS:
 			// client sending his position in the world
 			//log.Println("received N_POS")
-			log.Println("pos of", client.CN, N_POS, p)
-			client.GameState.Position = PlayerPosition(append([]byte{byte(N_POS)}, p...))
-			log.Println("pos of", client.CN, "set to", client.GameState.Position)
+			//log.Println("N_POS from", fromCN, p)
+			client.GameState.Position = PlayerPosition(p)
 			break outer
 
 		default:
-			log.Println(nmc, "on channel", channelId, p)
+			log.Println(p, "on channel", channelId)
 			break outer
 		}
 	}

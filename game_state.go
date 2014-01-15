@@ -20,6 +20,10 @@ type GameState struct {
 	// position of player
 	Position PlayerPosition
 
+	// buffered packets the client send which need to be sent to the other clients
+	BufferedPackets   []Packet
+	HasReliablePacket bool // wether one of the packets is important and nees to be sent reliably
+
 	// fields that change at spawn
 	State         ClientState
 	Health        int32

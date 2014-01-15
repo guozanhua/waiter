@@ -15,6 +15,9 @@ type ServerState struct {
 }
 
 var (
+	// global enet host var (to call Flush() on)
+	host enet.Host
+
 	// global server state
 	state ServerState
 
@@ -43,13 +46,16 @@ func init() {
 }
 
 func main() {
-	err := enet.StartServer(config.ListenPort)
+	var err error
+	host, err = enet.StartServer(config.ListenPort)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
+	log.Println("server running on port", config.ListenPort)
+
 	for {
-		event := enet.Service(5)
+		event := host.Service(5)
 
 		switch event.Type {
 		case enet.EVENT_TYPE_CONNECT:
@@ -71,7 +77,10 @@ func main() {
 				continue
 			}
 			//log.Println("got:", event.Packet.Data)
-			parsePacket(*(*ClientNumber)(event.Peer.Data), event.ChannelId, Packet(event.Packet.Data))
+			parsePacket(*(*ClientNumber)(event.Peer.Data), event.ChannelId, Packet{event.Packet.Data, 0})
 		}
+
+		log.Println("flushing")
+		host.Flush()
 	}
 }

@@ -79,8 +79,6 @@ func (p *Peer) Send(payload []byte, flags PacketFlag, channel uint8) {
 	p.Lock()
 	C.enet_peer_send(p.cPeer, C.enet_uint8(channel), packet)
 	p.Unlock()
-
-	Flush()
 }
 
 func (p *Peer) Disconnect(reason uint32) {

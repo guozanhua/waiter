@@ -70,7 +70,7 @@ func (p *Packet) getUint32() int32 {
 }
 
 // Reads a string from the packet and increases the position index accordingly.
-func (p *Packet) popString() string {
+func (p *Packet) getString() string {
 	buf := []byte{}
 
 	for b := p.getByte(); b != 0x00; b = p.getByte() {

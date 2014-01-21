@@ -16,7 +16,7 @@
 	"server_auth_domains": [""],
 
 	// listen address
-	"listen_address": "",
+	"listen_address": "127.0.0.1",
 
 	// listen port
 	"listen_port": 28785

@@ -17,7 +17,7 @@ const (
 
 type Event struct {
 	Type      EventType
-	Peer      Peer
+	Peer      *Peer
 	ChannelId uint8
 	Data      uint32
 	Packet    Packet

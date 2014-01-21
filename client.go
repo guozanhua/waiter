@@ -32,12 +32,12 @@ type Client struct {
 	AI                  bool             // wether this is a bot or not
 	AISkill             int32
 	InUse               bool // true if this client object is in use in the actual game
-	Peer                enet.Peer
+	Peer                *enet.Peer
 	SessionId           int32
 }
 
 // Connects an ENet peer to a client object. If no unused client object can be found, a new one is created and added to the global set of clients
-func addClient(peer enet.Peer) *Client {
+func addClient(peer *enet.Peer) *Client {
 	var client *Client
 
 	// re-use unused client object with low cn
@@ -57,10 +57,10 @@ func addClient(peer enet.Peer) *Client {
 	client.SessionId = rng.Int31()
 	client.Team = "good" // TODO: select weaker team
 
-	client.GameState = NewGameState(5)
+	client.GameState = GameState{}
 
 	// first client connected, start new game
-	if len(clients) == 0 {
+	if client.CN == 0 {
 		go countDown(TEN_MINUTES, interruptTickerChannel, intermissionChannel)
 	}
 
@@ -73,7 +73,7 @@ func addClient(peer enet.Peer) *Client {
 
 // send a packet to a client (reliable if desired) over the specified channel
 func (client *Client) send(p *Packet, reliable bool, channel uint8) {
-	log.Println(p.buf, "→", client.Peer.Address.String())
+	//log.Println(p.buf, "→", client.Peer.Address.String())
 
 	var flags enet.PacketFlag
 	if reliable {
@@ -115,7 +115,7 @@ func (client *Client) sendWelcome() {
 	parts = append(parts, N_RESUME)
 	for _, c := range clients {
 		log.Println(c)
-		if c == client || !client.InUse {
+		if c == client || !c.InUse {
 			continue
 		}
 
@@ -128,7 +128,7 @@ func (client *Client) sendWelcome() {
 
 	// send other client's state (name, team, playermodel)
 	for _, c := range clients {
-		if c == client || !client.InUse {
+		if c == client || !c.InUse {
 			continue
 		}
 		parts = append(parts, N_INITCLIENT, c.CN, c.Name, c.Team, c.PlayerModel)
@@ -156,6 +156,8 @@ func (client *Client) join(name string, playerModel int32, hash string, authDoma
 	client.Name = name
 	client.PlayerModel = playerModel
 
+	client.GameState.spawn(GM_EFFIC)
+
 	log.Printf("join: %s (%d)\n", name, client.CN)
 
 	// send welcome packet
@@ -163,7 +165,7 @@ func (client *Client) join(name string, playerModel int32, hash string, authDoma
 
 	// inform other clients that there is a new client
 	for _, c := range clients {
-		if c == client {
+		if c == client || !c.InUse {
 			continue
 		}
 		c.informOfNewClient(client)
@@ -191,7 +193,7 @@ func (client *Client) disconnect(reason DisconnectReason) {
 
 	// inform others
 	for _, c := range clients {
-		if c == client {
+		if c == client || !c.InUse {
 			continue
 		}
 		c.informOfDisconnectingClient(client, reason)

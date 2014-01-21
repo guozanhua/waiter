@@ -4,7 +4,8 @@ A game server for Cube 2: Sauerbraten, written in Go.
 
 ## To Do
 
-- Make position broadcasting work
+- Make client events broadcasting work
+- Fix garbage collector (I think?) lags
 - Fork an observation server (connects to a game as spectator, broadcasts the game data to spectators with optional delay)
 - Get global auth to work
 - Implement local auth, too

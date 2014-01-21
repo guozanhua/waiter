@@ -4,6 +4,7 @@ import (
 	"./enet"
 	"github.com/sauerbraten/jsonconf"
 	"log"
+	"runtime"
 )
 
 type ServerState struct {
@@ -18,6 +19,9 @@ var (
 	// global enet host var (to call Flush() on)
 	host enet.Host
 
+	// global variable to indicate to the main loop that there are packets to be sent
+	mustFlush = false
+
 	// global server state
 	state ServerState
 
@@ -29,6 +33,8 @@ var (
 )
 
 func init() {
+	runtime.GOMAXPROCS(1)
+
 	config = Config{}
 
 	err := jsonconf.ParseFile("config.json", &config)
@@ -47,7 +53,7 @@ func init() {
 
 func main() {
 	var err error
-	host, err = enet.StartServer(config.ListenPort)
+	host, err = enet.StartServer(config.ListenAddress, config.ListenPort)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -59,6 +65,7 @@ func main() {
 
 		switch event.Type {
 		case enet.EVENT_TYPE_CONNECT:
+			log.Println("ENet: connected:", event.Peer.Address.String())
 			client := addClient(event.Peer)
 			err := event.Peer.SetData(&client.CN)
 			if err != nil {
@@ -67,20 +74,23 @@ func main() {
 			client.sendServerInfo()
 
 		case enet.EVENT_TYPE_DISCONNECT:
+			log.Println("ENet: disconnected:", event.Peer.Address.String())
 			client := clients[*(*ClientNumber)(event.Peer.Data)]
 			client.leave()
-			log.Println("ENet: disconnected:", event.Peer.Address.String())
 
 		case enet.EVENT_TYPE_RECEIVE:
 			// TODO: fix this maybe?
 			if len(event.Packet.Data) == 0 {
 				continue
 			}
-			//log.Println("got:", event.Packet.Data)
+
 			parsePacket(*(*ClientNumber)(event.Peer.Data), event.ChannelId, Packet{event.Packet.Data, 0})
 		}
 
-		log.Println("flushing")
-		host.Flush()
+		if mustFlush {
+			//log.Println("flushing")
+			host.Flush()
+			mustFlush = false
+		}
 	}
 }

@@ -50,10 +50,25 @@ var Guns map[GunNumber]Gun = map[GunNumber]Gun{
 	GUN_PISTOL:          Gun{S_PISTOL, 500, 35, 50, 0, 7, 1024, 1, 80, 0, 0},
 }
 
-func baseAmmo(ammo map[GunNumber]int32) {
-	for _, gn := range GunsWithAmmo {
-		ammo[gn] = PickUps[EntityNumber(gn-GUN_SHOTGUN)+PICKUP_SHOTGUN].Amount * 2
-	}
+// ammo sets
+
+var SpawnAmmo map[GameMode]map[GunNumber]int32 = map[GameMode]map[GunNumber]int32{
+	GM_EFFIC: map[GunNumber]int32{
+		GUN_SHOTGUN:         20,
+		GUN_MINIGUN:         20,
+		GUN_ROCKETLAUNCHER:  10,
+		GUN_RIFLE:           10,
+		GUN_GRENADELAUNCHER: 20,
+		GUN_PISTOL:          0,
+	},
+	GM_INSTA: map[GunNumber]int32{
+		GUN_SHOTGUN:         0,
+		GUN_MINIGUN:         0,
+		GUN_ROCKETLAUNCHER:  0,
+		GUN_RIFLE:           100,
+		GUN_GRENADELAUNCHER: 0,
+		GUN_PISTOL:          0,
+	},
 }
 
 // entities (especially pickups)

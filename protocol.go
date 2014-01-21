@@ -63,9 +63,10 @@ func sendf(client *Client, reliable bool, channel uint8, args ...interface{}) {
 		}
 	}
 
-	log.Println(p, "→", client.CN)
+	//log.Println(p, "→", client.CN)
 
 	client.send(&p, reliable, channel)
+	mustFlush = true
 }
 
 // parses a packet and decides what to do based on the network message code at the front of the packet

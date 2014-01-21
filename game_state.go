@@ -50,30 +50,36 @@ type GameState struct {
 	Flags      int32
 }
 
-// Returns a fresh game state depending on the game mode
-func NewGameState(mode GameMode) GameState {
-	gs := GameState{}
+// Sets GameState properties to the initial values depending on the mode.
+func (gs *GameState) spawn(mode GameMode) {
+	gs.QuadTimeLeft = 0
+	gs.GunReloadTime = 0
+	gs.State = CS_ALIVE
 
 	switch mode {
-	case GM_EFFIC, GM_EFFICTEAM:
+	case GM_EFFIC, GM_EFFICTEAM, GM_EFFICCTF, GM_EFFICCOLLECT, GM_EFFICPROTECT, GM_EFFICHOLD:
 		gs.Health = 100
 		gs.MaxHealth = 100
 		gs.Armour = 100
 		gs.ArmourType = ARMOUR_GREEN
 		gs.SelectedGun = GUN_MINIGUN
+		gs.Ammo = SpawnAmmo[GM_EFFIC]
 
-		gs.Ammo = map[GunNumber]int32{}
-		baseAmmo(gs.Ammo)
-		gs.Ammo[GUN_MINIGUN] /= 2
-		gs.Ammo[GUN_PISTOL] = 0
-
+	case GM_INSTA, GM_INSTATEAM, GM_INSTACTF, GM_INSTACOLLECT, GM_INSTAPROTECT, GM_INSTAHOLD:
+		gs.Health = 1
+		gs.MaxHealth = 1
+		gs.Armour = 0
+		gs.ArmourType = ARMOUR_BLUE
+		gs.SelectedGun = GUN_RIFLE
+		gs.Ammo = SpawnAmmo[GM_INSTA]
 	}
-
-	return gs
 }
 
 // Resets a player's game state.
 func (gs *GameState) reset() {
+	gs.Position = PlayerPosition{}
+	gs.BufferedPackets = []Packet{}
+
 	if gs.State != CS_SPECTATOR {
 		gs.State = CS_DEAD
 	}

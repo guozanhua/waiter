@@ -10,7 +10,6 @@ import (
 	"errors"
 	"net"
 	"reflect"
-	"sync"
 	"unsafe"
 )
 
@@ -30,21 +29,26 @@ const (
 )
 
 type Peer struct {
-	sync.Mutex
 	Address net.UDPAddr
 	State   PeerState
 	Data    unsafe.Pointer
 	cPeer   *C.ENetPeer
+	out     chan outgoingPacket
 }
 
-func peerFromCPeer(cPeer *C.ENetPeer) Peer {
+func peerFromCPeer(cPeer *C.ENetPeer) *Peer {
 	if cPeer == nil {
-		return Peer{}
+		return nil
+	}
+
+	// peer exists already
+	if p, ok := peers[cPeer]; ok {
+		return p
 	}
 
 	ip := uint32(cPeer.address.host)
 
-	p := Peer{
+	p := &Peer{
 		Address: net.UDPAddr{
 			IP:   net.IPv4(byte((ip<<24)>>24), byte((ip<<16)>>8), byte((ip<<8)>>16), byte(ip>>24)),
 			Port: int(cPeer.address.port),
@@ -52,11 +56,22 @@ func peerFromCPeer(cPeer *C.ENetPeer) Peer {
 		State: PeerState(cPeer.state),
 		Data:  cPeer.data,
 		cPeer: cPeer,
+		out:   make(chan outgoingPacket),
 	}
+
+	peers[cPeer] = p
+
+	go p.sendOutgoingPackets()
 
 	return p
 }
 
+func (p *Peer) Disconnect(reason uint32) {
+	delete(peers, p.cPeer)
+	C.enet_peer_disconnect(p.cPeer, C.enet_uint32(reason))
+}
+
+// Note: v must be of pointer type!
 func (p *Peer) SetData(v interface{}) error {
 	rv := reflect.ValueOf(v)
 	if rv.Kind() != reflect.Ptr || rv.IsNil() {
@@ -69,18 +84,22 @@ func (p *Peer) SetData(v interface{}) error {
 	return nil
 }
 
+type outgoingPacket struct {
+	packet  *C.ENetPacket
+	channel uint8
+}
+
+func (p *Peer) sendOutgoingPackets() {
+	for {
+		outPacket := <-p.out
+		C.enet_peer_send(p.cPeer, C.enet_uint8(outPacket.channel), outPacket.packet)
+	}
+}
+
 func (p *Peer) Send(payload []byte, flags PacketFlag, channel uint8) {
 	if len(payload) <= 0 {
 		return
 	}
-
 	packet := C.enet_packet_create(unsafe.Pointer(&payload[0]), C.size_t(len(payload)), C.enet_uint32(flags))
-
-	p.Lock()
-	C.enet_peer_send(p.cPeer, C.enet_uint8(channel), packet)
-	p.Unlock()
-}
-
-func (p *Peer) Disconnect(reason uint32) {
-	C.enet_peer_disconnect(p.cPeer, C.enet_uint32(reason))
+	p.out <- outgoingPacket{packet, channel}
 }

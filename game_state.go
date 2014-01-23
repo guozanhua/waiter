@@ -79,6 +79,7 @@ func (gs *GameState) spawn(mode GameMode) {
 func (gs *GameState) reset() {
 	gs.Position = PlayerPosition{}
 	gs.BufferedPackets = []Packet{}
+	gs.HasReliablePacket = false
 
 	if gs.State != CS_SPECTATOR {
 		gs.State = CS_DEAD
@@ -86,6 +87,9 @@ func (gs *GameState) reset() {
 	gs.MaxHealth = 0
 	gs.Tokens = 0
 
+	gs.LastSpawn = 0
+	gs.LifeSequence = 0
+	gs.LastShot = 0
 	gs.LastDeath = 0
 
 	gs.Frags = 0
@@ -93,4 +97,5 @@ func (gs *GameState) reset() {
 	gs.Teamkills = 0
 	gs.ShotDamage = 0
 	gs.Damage = 0
+	gs.Flags = 0
 }

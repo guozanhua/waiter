@@ -7,14 +7,6 @@ import (
 	"runtime"
 )
 
-type ServerState struct {
-	MasterMode  MasterMode
-	GameMode    GameMode
-	Map         string
-	TimeLeft    int32 // in milliseconds
-	NotGotItems bool
-}
-
 var (
 	// global enet host var (to call Flush() on)
 	host enet.Host
@@ -26,15 +18,13 @@ var (
 	state ServerState
 
 	// global collection of clients
-	clients = map[ClientNumber]*Client{}
+	clients = Clients{}
 
 	// server configuration
 	config Config
 )
 
 func init() {
-	runtime.GOMAXPROCS(1)
-
 	config = Config{}
 
 	err := jsonconf.ParseFile("config.json", &config)
@@ -46,9 +36,12 @@ func init() {
 		MasterMode:  MM_OPEN,
 		GameMode:    GM_EFFIC,
 		Map:         "hashi",
-		TimeLeft:    600000,
+		TimeLeft:    TEN_MINUTES,
 		NotGotItems: true,
+		HasMaster:   false,
 	}
+
+	runtime.GOMAXPROCS(config.CPUCores)
 }
 
 func main() {
@@ -59,6 +52,8 @@ func main() {
 	}
 
 	log.Println("server running on port", config.ListenPort)
+
+	go countDown()
 
 	for {
 		event := host.Service(5)

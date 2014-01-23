@@ -1,23 +1,32 @@
 {
-	// server description
-	"server_description": "go dev server",
+	// listen address
+	"listen_address": "127.0.0.1",
 
-	"max_clients": 12,
+	// listen port
+	"listen_port": 28785,
 
-	// the address of the master server to report to (also the one used for global auth)
-	"master_server": "sauerbraten.org",
+// the address of the master server to report to (also the one used for global auth)
+	"master_server_address": "sauerbraten.org",
 
 	// port to use at the master server
 	"master_server_port": 28787,
+
+
+	// server description
+	"server_description": "go dev server",
+
+	// maximum number of clients
+	"max_clients": 12,
+
+	// server password (needed to connect to the server)
+	"server_password": "",
 
 	// local auth domains
 	// first one will be used as primary one, e.g. when you enable auth-on-connect and the server is in private mode
 	//"server_auth_domains": ["dev", "dev:registered_users", "dev:masters", "dev:admins"]
 	"server_auth_domains": [""],
 
-	// listen address
-	"listen_address": "127.0.0.1",
 
-	// listen port
-	"listen_port": 28785
+	// number of cpu cores to use; >= 1 recommended ;)
+	"cpu_cores": 2
 }

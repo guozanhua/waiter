@@ -6,10 +6,8 @@ import (
 
 const PROTOCOL_VERSION int32 = 259
 
-// sends a (reliable if desired) packet to client, containing all the parts
-func sendf(client *Client, reliable bool, channel uint8, args ...interface{}) {
-	p := Packet{}
-
+// makes a new packet containing all the values in args
+func makePacket(args ...interface{}) (p Packet) {
 	for _, arg := range args {
 		switch v := arg.(type) {
 		case int32:
@@ -63,10 +61,7 @@ func sendf(client *Client, reliable bool, channel uint8, args ...interface{}) {
 		}
 	}
 
-	//log.Println(p, "→", client.CN)
-
-	client.send(&p, reliable, channel)
-	mustFlush = true
+	return
 }
 
 // parses a packet and decides what to do based on the network message code at the front of the packet

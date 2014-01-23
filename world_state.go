@@ -39,7 +39,7 @@ func sendPositions() {
 		}
 
 		// send on channel 0
-		sendf(client, false, 0, positions...)
+		client.send(false, 0, positions...)
 	}
 }
 
@@ -87,6 +87,6 @@ func sendNetworkMessages() {
 		}
 
 		// send on channel 1
-		sendf(client, reliablePacketPresent, 1, packets...)
+		client.send(reliablePacketPresent, 1, packets...)
 	}
 }

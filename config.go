@@ -11,9 +11,9 @@ type Config struct {
 	MasterServerPort    int    `json:"master_server_port"`
 
 	ServerDescription string   `json:"server_description"`
-	MaxClients        int      `json:"max_clients"`
 	ServerPassword    string   `json:"server_password"`
 	ServerAuthDomains []string `json:"server_auth_domains"`
+	MaxClients        int      `json:"max_clients"`
 
 	CPUCores int `json:"cpu_cores"`
 }

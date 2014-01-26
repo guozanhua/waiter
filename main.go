@@ -54,6 +54,7 @@ func main() {
 	log.Println("server running on port", config.ListenPort)
 
 	go countDown()
+	go broadcastPackets()
 
 	for {
 		event := host.Service(5)

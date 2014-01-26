@@ -1,5 +1,15 @@
 package main
 
+type PacketBuffer []Packet
+
+func (pb PacketBuffer) len() (l int) {
+	for _, p := range pb {
+		l += len(p.buf)
+	}
+
+	return
+}
+
 type Packet struct {
 	buf []byte
 	pos int

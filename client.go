@@ -62,15 +62,13 @@ func addClient(peer *enet.Peer) *Client {
 	}
 
 	client = &Client{
-		CN: ClientNumber(len(clients)),
+		CN:        ClientNumber(len(clients)),
+		InUse:     true,
+		Peer:      peer,
+		SessionId: rng.Int31(),
+		Team:      "good", // TODO: select weaker team
+		GameState: GameState{},
 	}
-
-	client.InUse = true
-	client.Peer = peer
-	client.SessionId = rng.Int31()
-	client.Team = "good" // TODO: select weaker team
-
-	client.GameState = GameState{}
 
 	clients[client.CN] = client
 
@@ -91,7 +89,7 @@ func (client *Client) send(reliable bool, channel uint8, args ...interface{}) {
 	}
 
 	if channel == 1 {
-		log.Println(args, "→", client.CN)
+		log.Println(p, "→", client.CN)
 	}
 
 	client.Peer.Send(p.buf, flags, channel)
@@ -283,7 +281,7 @@ func (client *Client) reset() {
 	client.AI = false
 	client.AISkill = -1
 	client.InUse = false
-	client.SessionId = -1
+	client.SessionId = rng.Int31()
 
 	client.GameState.reset()
 }

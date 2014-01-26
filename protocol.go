@@ -73,7 +73,7 @@ func parsePacket(fromCN ClientNumber, channelId uint8, p Packet) {
 	client := clients[fromCN]
 
 outer:
-	for p.len() > 0 {
+	for p.pos < p.len() {
 		nmc := NetworkMessageCode(p.getInt32())
 
 		if !isValidNetworkMessageCode(nmc, client) {
@@ -86,18 +86,18 @@ outer:
 			// client sends intro and wants to join the game
 			log.Println("received N_JOIN")
 			client.join(p.getString(), p.getInt32(), p.getString(), p.getString(), p.getString())
-			break outer
+			//break outer
 
 		case N_AUTHANS:
 			// client sends answer to auth challenge
 			log.Println("received N_AUTHANS")
-			break outer
+			//break outer
 
 		case N_PING:
 			// client pinging server
 			//log.Println("received N_PING")
 			p.getInt32()
-			break outer
+			//break outer
 
 		case N_POS:
 			// client sending his position in the world
@@ -105,6 +105,12 @@ outer:
 			//log.Println("N_POS from", fromCN, p)
 			client.GameState.Position = PlayerPosition(p)
 			break outer
+
+		case N_TEXT:
+			// client sending chat
+			log.Println("got N_TEXT")
+			text := p.getString()
+			client.GameState.BufferedPackets = append(client.GameState.BufferedPackets, makePacket(N_TEXT, text))
 
 		default:
 			log.Println(p, "on channel", channelId)

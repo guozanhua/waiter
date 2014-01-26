@@ -4,10 +4,8 @@ import (
 	"log"
 )
 
-var clientPositions map[ClientNumber]*PlayerPosition
-
 func sendPositions() {
-	clientPositions = map[ClientNumber]*PlayerPosition{}
+	clientPositions := map[ClientNumber]*PlayerPosition{}
 	clientsInUse := 0
 
 	for _, client := range clients {
@@ -43,10 +41,8 @@ func sendPositions() {
 	}
 }
 
-var clientPackets map[ClientNumber][]Packet
-
 func sendNetworkMessages() {
-	clientPackets = map[ClientNumber][]Packet{}
+	clientPackets := map[ClientNumber]PacketBuffer{}
 	clientsInUse := 0
 	reliablePacketPresent := false
 
@@ -58,7 +54,7 @@ func sendNetworkMessages() {
 		log.Println("adding packets by", client.CN)
 
 		clientPackets[client.CN] = client.GameState.BufferedPackets
-		client.GameState.BufferedPackets = []Packet{}
+		client.GameState.BufferedPackets = PacketBuffer{}
 		reliablePacketPresent = client.GameState.HasReliablePacket
 		clientsInUse++
 	}
@@ -79,7 +75,7 @@ func sendNetworkMessages() {
 				continue
 			}
 
-			packets = append(packets, N_CLIENT, otherCN)
+			packets = append(packets, N_CLIENT, otherCN, packetBuffer.len())
 
 			for _, packet := range packetBuffer {
 				packets = append(packets, packet)

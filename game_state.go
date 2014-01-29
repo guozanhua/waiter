@@ -25,16 +25,16 @@ type GameState struct {
 	HasReliablePacket bool // wether one of the packets is important and nees to be sent reliably
 
 	// fields that change at spawn
-	State         ClientState
-	Health        int32
-	MaxHealth     int32
-	Armour        int32
-	ArmourType    ArmourType
-	QuadTimeLeft  int32 // in milliseconds
-	SelectedGun   GunNumber
-	GunReloadTime int32
-	Ammo          map[GunNumber]int32
-	Tokens        int32 // skulls
+	State          ClientState
+	Health         int32
+	MaxHealth      int32
+	Armour         int32
+	ArmourType     ArmourType
+	QuadTimeLeft   int32 // in milliseconds
+	SelectedWeapon WeaponNumber
+	GunReloadTime  int32
+	Ammo           map[WeaponNumber]int32
+	Tokens         int32 // skulls
 
 	LastSpawn    int32
 	LifeSequence int32
@@ -62,7 +62,7 @@ func (gs *GameState) spawn(mode GameMode) {
 		gs.MaxHealth = 100
 		gs.Armour = 100
 		gs.ArmourType = ARMOUR_GREEN
-		gs.SelectedGun = GUN_MINIGUN
+		gs.SelectedWeapon = WPN_MINIGUN
 		gs.Ammo = SpawnAmmo[GM_EFFIC]
 
 	case GM_INSTA, GM_INSTATEAM, GM_INSTACTF, GM_INSTACOLLECT, GM_INSTAPROTECT, GM_INSTAHOLD:
@@ -70,7 +70,7 @@ func (gs *GameState) spawn(mode GameMode) {
 		gs.MaxHealth = 1
 		gs.Armour = 0
 		gs.ArmourType = ARMOUR_BLUE
-		gs.SelectedGun = GUN_RIFLE
+		gs.SelectedWeapon = WPN_RIFLE
 		gs.Ammo = SpawnAmmo[GM_INSTA]
 	}
 }

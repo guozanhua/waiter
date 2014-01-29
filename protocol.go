@@ -44,7 +44,7 @@ func makePacket(args ...interface{}) (p Packet) {
 		case ClientState:
 			p.putInt32(int32(v))
 
-		case GunNumber:
+		case WeaponNumber:
 			p.putInt32(int32(v))
 
 		case ArmourType:
@@ -58,6 +58,9 @@ func makePacket(args ...interface{}) (p Packet) {
 
 		case PlayerPosition:
 			p.putBytes(v.buf)
+
+		default:
+			log.Printf("unhandled type %T of arg %v\n", v, v)
 		}
 	}
 
@@ -101,8 +104,6 @@ outer:
 
 		case N_POS:
 			// client sending his position in the world
-			//log.Println("received N_POS")
-			//log.Println("N_POS from", fromCN, p)
 			client.GameState.Position = PlayerPosition(p)
 			break outer
 
@@ -113,6 +114,21 @@ outer:
 		case N_SAYTEAM:
 			// client sending team chat message → pass on to team immediatly
 			client.sendToTeam(true, 1, N_SAYTEAM, client.CN, p.getString())
+
+		case N_WEAPONSELECT:
+			// player changing weapon
+			selectedWeapon := WeaponNumber(p.getInt32())
+			if client.GameState.State != CS_ALIVE {
+				break
+			}
+
+			if selectedWeapon >= WPN_SAW && selectedWeapon <= WPN_PISTOL {
+				client.GameState.SelectedWeapon = selectedWeapon
+			} else {
+				client.GameState.SelectedWeapon = WPN_PISTOL
+			}
+
+			client.GameState.BufferedPackets = append(client.GameState.BufferedPackets, makePacket(N_WEAPONSELECT, selectedWeapon))
 
 		default:
 			log.Println(p, "on channel", channelId)

@@ -12,21 +12,21 @@ const (
 
 // guns
 
-type GunNumber int32
+type WeaponNumber int32
 
 const (
-	GUN_SAW GunNumber = iota
-	GUN_SHOTGUN
-	GUN_MINIGUN
-	GUN_ROCKETLAUNCHER
-	GUN_RIFLE
-	GUN_GRENADELAUNCHER
-	GUN_PISTOL
+	WPN_SAW WeaponNumber = iota
+	WPN_SHOTGUN
+	WPN_MINIGUN
+	WPN_ROCKETLAUNCHER
+	WPN_RIFLE
+	WPN_GRENADELAUNCHER
+	WPN_PISTOL
 )
 
-var GunsWithAmmo []GunNumber = []GunNumber{GUN_SHOTGUN, GUN_MINIGUN, GUN_ROCKETLAUNCHER, GUN_RIFLE, GUN_GRENADELAUNCHER, GUN_PISTOL}
+var WeaponsWithAmmo []WeaponNumber = []WeaponNumber{WPN_SHOTGUN, WPN_MINIGUN, WPN_ROCKETLAUNCHER, WPN_RIFLE, WPN_GRENADELAUNCHER, WPN_PISTOL}
 
-type Gun struct {
+type Weapon struct {
 	Sound           SoundNumber
 	ReloadTime      int32
 	Damage          int32
@@ -40,34 +40,34 @@ type Gun struct {
 	TimeToLive      int32
 }
 
-var Guns map[GunNumber]Gun = map[GunNumber]Gun{
-	GUN_SAW:             Gun{S_SAW, 250, 50, 0, 0, 0, 14, 1, 80, 0, 0},
-	GUN_SHOTGUN:         Gun{S_SHOTGUN, 1400, 10, 400, 0, 20, 1024, 20, 80, 0, 0},
-	GUN_MINIGUN:         Gun{S_MINIGUN, 100, 30, 100, 0, 7, 1024, 1, 80, 0, 0},
-	GUN_ROCKETLAUNCHER:  Gun{S_ROCKETLAUNCH, 800, 120, 0, 320, 10, 1024, 1, 160, 40, 0},
-	GUN_RIFLE:           Gun{S_RIFLE, 1500, 100, 0, 0, 30, 2048, 1, 80, 0, 0},
-	GUN_GRENADELAUNCHER: Gun{S_GRENADELAUNCH, 600, 90, 0, 200, 10, 1024, 1, 250, 45, 1500},
-	GUN_PISTOL:          Gun{S_PISTOL, 500, 35, 50, 0, 7, 1024, 1, 80, 0, 0},
+var Weapons map[WeaponNumber]Weapon = map[WeaponNumber]Weapon{
+	WPN_SAW:             Weapon{S_SAW, 250, 50, 0, 0, 0, 14, 1, 80, 0, 0},
+	WPN_SHOTGUN:         Weapon{S_SHOTGUN, 1400, 10, 400, 0, 20, 1024, 20, 80, 0, 0},
+	WPN_MINIGUN:         Weapon{S_MINIGUN, 100, 30, 100, 0, 7, 1024, 1, 80, 0, 0},
+	WPN_ROCKETLAUNCHER:  Weapon{S_ROCKETLAUNCH, 800, 120, 0, 320, 10, 1024, 1, 160, 40, 0},
+	WPN_RIFLE:           Weapon{S_RIFLE, 1500, 100, 0, 0, 30, 2048, 1, 80, 0, 0},
+	WPN_GRENADELAUNCHER: Weapon{S_GRENADELAUNCH, 600, 90, 0, 200, 10, 1024, 1, 250, 45, 1500},
+	WPN_PISTOL:          Weapon{S_PISTOL, 500, 35, 50, 0, 7, 1024, 1, 80, 0, 0},
 }
 
 // ammo sets
 
-var SpawnAmmo map[GameMode]map[GunNumber]int32 = map[GameMode]map[GunNumber]int32{
-	GM_EFFIC: map[GunNumber]int32{
-		GUN_SHOTGUN:         20,
-		GUN_MINIGUN:         20,
-		GUN_ROCKETLAUNCHER:  10,
-		GUN_RIFLE:           10,
-		GUN_GRENADELAUNCHER: 20,
-		GUN_PISTOL:          0,
+var SpawnAmmo map[GameMode]map[WeaponNumber]int32 = map[GameMode]map[WeaponNumber]int32{
+	GM_EFFIC: map[WeaponNumber]int32{
+		WPN_SHOTGUN:         20,
+		WPN_MINIGUN:         20,
+		WPN_ROCKETLAUNCHER:  10,
+		WPN_RIFLE:           10,
+		WPN_GRENADELAUNCHER: 20,
+		WPN_PISTOL:          0,
 	},
-	GM_INSTA: map[GunNumber]int32{
-		GUN_SHOTGUN:         0,
-		GUN_MINIGUN:         0,
-		GUN_ROCKETLAUNCHER:  0,
-		GUN_RIFLE:           100,
-		GUN_GRENADELAUNCHER: 0,
-		GUN_PISTOL:          0,
+	GM_INSTA: map[WeaponNumber]int32{
+		WPN_SHOTGUN:         0,
+		WPN_MINIGUN:         0,
+		WPN_ROCKETLAUNCHER:  0,
+		WPN_RIFLE:           100,
+		WPN_GRENADELAUNCHER: 0,
+		WPN_PISTOL:          0,
 	},
 }
 

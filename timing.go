@@ -10,7 +10,7 @@ var (
 )
 
 const (
-	TEN_MINUTES int32 = 15000 // 15 seconds for testing and debugging purposes
+	TEN_MINUTES int32 = 20000 // 20s for testing and debugging purposes
 )
 
 func broadcastPackets() {
@@ -63,7 +63,7 @@ func intermission() {
 	// start 5 second timer
 	end := time.After(5 * time.Second)
 
-	// display some top stats
+	// TODO: display some top stats
 
 	// wait for timer to finish
 	<-end

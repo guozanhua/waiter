@@ -159,8 +159,8 @@ func (client *Client) sendWelcome() {
 		parts = append(parts, N_SPECTATOR, client.CN, 1)
 	} else {
 		// TODO: handle spawn delay (e.g. in ctf modes)
-		parts = append(parts, N_SPAWNSTATE, client.CN, client.GameState.LifeSequence, client.GameState.Health, client.GameState.MaxHealth, client.GameState.Armour, client.GameState.ArmourType, client.GameState.SelectedGun)
-		for _, gn := range GunsWithAmmo {
+		parts = append(parts, N_SPAWNSTATE, client.CN, client.GameState.LifeSequence, client.GameState.Health, client.GameState.MaxHealth, client.GameState.Armour, client.GameState.ArmourType, client.GameState.SelectedWeapon)
+		for _, gn := range WeaponsWithAmmo {
 			parts = append(parts, client.GameState.Ammo[gn])
 		}
 	}
@@ -173,8 +173,8 @@ func (client *Client) sendWelcome() {
 			continue
 		}
 
-		parts = append(parts, c.CN, c.GameState.State, c.GameState.Frags, c.GameState.Flags, c.GameState.QuadTimeLeft, c.GameState.LifeSequence, c.GameState.Health, c.GameState.MaxHealth, c.GameState.Armour, c.GameState.ArmourType, c.GameState.SelectedGun)
-		for _, gn := range GunsWithAmmo {
+		parts = append(parts, c.CN, c.GameState.State, c.GameState.Frags, c.GameState.Flags, c.GameState.QuadTimeLeft, c.GameState.LifeSequence, c.GameState.Health, c.GameState.MaxHealth, c.GameState.Armour, c.GameState.ArmourType, c.GameState.SelectedWeapon)
+		for _, gn := range WeaponsWithAmmo {
 			parts = append(parts, c.GameState.Ammo[gn])
 		}
 	}
@@ -270,11 +270,11 @@ func (client *Client) spawn() {
 	client.GameState.spawn(state.GameMode)
 	client.GameState.LifeSequence = (client.GameState.LifeSequence + 1) % 128
 
-	parts := []interface{}{N_SPAWNSTATE, client.CN, client.GameState.LifeSequence, client.GameState.Health, client.GameState.MaxHealth, client.GameState.Armour, client.GameState.ArmourType, client.GameState.SelectedGun}
-	for _, gn := range GunsWithAmmo {
+	parts := []interface{}{N_SPAWNSTATE, client.CN, client.GameState.LifeSequence, client.GameState.Health, client.GameState.MaxHealth, client.GameState.Armour, client.GameState.ArmourType, client.GameState.SelectedWeapon}
+	for _, gn := range WeaponsWithAmmo {
 		parts = append(parts, client.GameState.Ammo[gn])
 	}
-	client.send(true, 1, parts)
+	client.send(true, 1, parts...)
 
 	client.GameState.LastSpawn = state.TimeLeft
 }

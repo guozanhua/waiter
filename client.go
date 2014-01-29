@@ -95,6 +95,16 @@ func (client *Client) send(reliable bool, channel uint8, args ...interface{}) {
 	client.Peer.Send(p.buf, flags, channel)
 }
 
+// Send a packet to a client's team (reliable if desired) over the specified channel.
+func (client *Client) sendToTeam(reliable bool, channel uint8, args ...interface{}) {
+	for _, c := range clients {
+		if c == client || !c.InUse || c.Team != client.Team {
+			continue
+		}
+		c.send(reliable, channel, args...)
+	}
+}
+
 // Sends a packet to all clients but the client himself.
 func (client *Client) sendToAllOthers(reliable bool, channel uint8, args ...interface{}) {
 	for _, c := range clients {

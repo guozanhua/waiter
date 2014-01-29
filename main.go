@@ -80,7 +80,7 @@ func main() {
 				continue
 			}
 
-			parsePacket(*(*ClientNumber)(event.Peer.Data), event.ChannelId, Packet{event.Packet.Data, 0})
+			go parsePacket(*(*ClientNumber)(event.Peer.Data), event.ChannelId, Packet{event.Packet.Data, 0})
 		}
 
 		if mustFlush {

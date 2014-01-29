@@ -1,11 +1,11 @@
 {
 	// listen address
-	"listen_address": "127.0.0.1",
+	"listen_address": "0.0.0.0",
 
 	// listen port
 	"listen_port": 28785,
 
-// the address of the master server to report to (also the one used for global auth)
+	// the address of the master server to report to (also the one used for global auth)
 	"master_server_address": "sauerbraten.org",
 
 	// port to use at the master server

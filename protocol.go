@@ -107,10 +107,12 @@ outer:
 			break outer
 
 		case N_TEXT:
-			// client sending chat
-			log.Println("got N_TEXT")
-			text := p.getString()
-			client.GameState.BufferedPackets = append(client.GameState.BufferedPackets, makePacket(N_TEXT, text))
+			// client sending chat message → add to client's buffered messages
+			client.GameState.BufferedPackets = append(client.GameState.BufferedPackets, makePacket(N_TEXT, p.getString()))
+
+		case N_SAYTEAM:
+			// client sending team chat message → pass on to team immediatly
+			client.sendToTeam(true, 1, N_SAYTEAM, client.CN, p.getString())
 
 		default:
 			log.Println(p, "on channel", channelId)

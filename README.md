@@ -16,19 +16,19 @@ A game server for Cube 2: Sauerbraten, written in Go.
 | file                     | used for                                                                                                                                |
 | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
 | auth.go                  | implementation of functions related to Sauer's authentication mechanism                                                                 |
-| map_rotation.go          | contains sets of maps used for map rotations in the current mode                                                                        |
-| server_state.go          | defines the `ServerState` type and methods on it which change the server state, e.g. `changeMap()`                                      |
 | client.go                | everything related to a client (send methods for example)                                                                               |
-| game_constants.go        | constants which are used by server and client (e.g. initial ammo depending on mode, game modes, privileges, etc.)                       |
-| network_message_codes.go | lists all the network message codes used for communication                                                                              |
-| timing.go                | stuff needed for timing of things; intermission handling                                                                                |
 | config.go                | the configuration stuff which the config.json file is read into                                                                         |
-| game_state.go            | a client's state in a game                                                                                                              |
-| packet.go                | a Sauerbraten network event packet, plus methods to read and manipulate it                                                              |
-| world_state.go           | functions to broadcast the world state (player event messages & player positions)                                                       |
 | config.json              | the configuration file for the user to set up the server                                                                                |
-| protocol.go              | processing of incoming packets; building of outgoing packets                                                                            |
+| game_constants.go        | constants which are used by server and client (e.g. initial ammo depending on mode, game modes, privileges, etc.)                       |
+| game_state.go            | a client's state in a game                                                                                                              |
 | main.go                  | initialization of server (reading of config files, starting of needed goroutines) and server's main loop listening for incoming packets |
+| map_rotation.go          | contains sets of maps used for map rotations in the current mode                                                                        |
+| network_message_codes.go | lists all the network message codes used for communication                                                                              |
+| packet.go                | a Sauerbraten network event packet, plus methods to read and manipulate it                                                              |
+| protocol.go              | processing of incoming packets; building of outgoing packets                                                                            |
+| server_state.go          | defines the `ServerState` type and methods on it which change the server state, e.g. `changeMap()`                                      |
+| timing.go                | stuff needed for timing of things; intermission handling                                                                                |
+| world_state.go           | functions to broadcast the world state (player event messages & player positions)                                                       |
 
 ## License
 

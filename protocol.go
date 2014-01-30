@@ -59,6 +59,17 @@ func makePacket(args ...interface{}) (p Packet) {
 		case PlayerPosition:
 			p.putBytes(v.buf)
 
+		case GameState:
+			p.putInt32(v.LifeSequence)
+			p.putInt32(v.Health)
+			p.putInt32(v.MaxHealth)
+			p.putInt32(v.Armour)
+			p.putInt32(int32(v.ArmourType))
+			p.putInt32(int32(v.SelectedWeapon))
+			for _, ammo := range v.Ammo {
+				p.putInt32(ammo)
+			}
+
 		default:
 			log.Printf("unhandled type %T of arg %v\n", v, v)
 		}
@@ -97,10 +108,13 @@ outer:
 			//break outer
 
 		case N_PING:
-			// client pinging server
-			//log.Println("received N_PING")
-			p.getInt32()
-			//break outer
+			// client pinging server → send pong
+			client.send(false, 1, N_PONG, p.getInt32())
+
+		case N_CLIENTPING:
+			// client sending the amount of LAG he measured to the server → broadcast by adding to client's buffered messages
+			client.Ping = p.getInt32()
+			client.GameState.BufferedPackets = append(client.GameState.BufferedPackets, makePacket(N_CLIENTPING, client.Ping))
 
 		case N_POS:
 			// client sending his position in the world
@@ -115,19 +129,23 @@ outer:
 			// client sending team chat message → pass on to team immediatly
 			client.sendToTeam(true, 1, N_SAYTEAM, client.CN, p.getString())
 
+		case N_MAPCRC:
+			// client sends crc hash of his map file
+			//clientMapName := p.getString()
+			//clientMapCRC := p.getInt32()
+			p.getString()
+			p.getInt32()
+
+		case N_SPAWN:
+			client.spawn(p.getInt32(), p.getInt32())
+			client.GameState.BufferedPackets = append(client.GameState.BufferedPackets, makePacket(N_SPAWN, client.GameState))
+
 		case N_WEAPONSELECT:
 			// player changing weapon
 			selectedWeapon := WeaponNumber(p.getInt32())
-			if client.GameState.State != CS_ALIVE {
-				break
-			}
+			client.GameState.selectWeapon(selectedWeapon)
 
-			if selectedWeapon >= WPN_SAW && selectedWeapon <= WPN_PISTOL {
-				client.GameState.SelectedWeapon = selectedWeapon
-			} else {
-				client.GameState.SelectedWeapon = WPN_PISTOL
-			}
-
+			// add to client's message buffer to broadcast to other clients
 			client.GameState.BufferedPackets = append(client.GameState.BufferedPackets, makePacket(N_WEAPONSELECT, selectedWeapon))
 
 		default:

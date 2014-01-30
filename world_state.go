@@ -36,8 +36,10 @@ func sendPositions() {
 			positions = append(positions, *positionPacket)
 		}
 
-		// send on channel 0
-		client.send(false, 0, positions...)
+		if len(positions) > 0 {
+			// send on channel 0
+			client.send(false, 0, positions...)
+		}
 	}
 }
 

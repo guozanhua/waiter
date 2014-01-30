@@ -47,6 +47,7 @@ type Client struct {
 	InUse               bool // true if this client object is in use in the actual game
 	Peer                *enet.Peer
 	SessionId           int32
+	Ping                int32
 }
 
 // Connects an ENet peer to a client object. If no unused client object can be found, a new one is created and added to the global set of clients.
@@ -265,18 +266,25 @@ func (client *Client) informOthersOfDisconnect(reason DisconnectReason) {
 	// TOOD: send a server message with the disconnect reason in case it's not a normal leave
 }
 
-func (client *Client) spawn() {
-	client.GameState.reset()
+func (client *Client) sendSpawnState() {
+	//client.GameState.reset()
 	client.GameState.spawn(state.GameMode)
 	client.GameState.LifeSequence = (client.GameState.LifeSequence + 1) % 128
 
-	parts := []interface{}{N_SPAWNSTATE, client.CN, client.GameState.LifeSequence, client.GameState.Health, client.GameState.MaxHealth, client.GameState.Armour, client.GameState.ArmourType, client.GameState.SelectedWeapon}
-	for _, gn := range WeaponsWithAmmo {
-		parts = append(parts, client.GameState.Ammo[gn])
-	}
-	client.send(true, 1, parts...)
+	client.send(true, 1, N_SPAWNSTATE, client.CN, client.GameState)
 
 	client.GameState.LastSpawn = state.TimeLeft
+}
+
+func (client *Client) spawn(lifeSequence, selectedWeapon int32) {
+	if (client.GameState.State != CS_ALIVE && client.GameState.State != CS_DEAD) || lifeSequence != client.GameState.LifeSequence || client.GameState.LastSpawn < 0 {
+		// client may not spawn
+		return
+	}
+
+	client.GameState.State = CS_ALIVE
+	client.GameState.SelectedWeapon = WeaponNumber(selectedWeapon)
+	client.GameState.LastSpawn = -1
 }
 
 // Resets the client object. Keeps the client's CN, so low CNs can be reused.
@@ -292,6 +300,7 @@ func (client *Client) reset() {
 	client.AISkill = -1
 	client.InUse = false
 	client.SessionId = rng.Int31()
+	client.Ping = 0
 
 	client.GameState.reset()
 }

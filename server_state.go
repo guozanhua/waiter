@@ -18,6 +18,7 @@ func (state *ServerState) changeMap(mapName string) {
 		if !c.InUse || c.GameState.State == CS_SPECTATOR {
 			continue
 		}
-		c.spawn()
+		c.GameState.reset()
+		c.sendSpawnState()
 	}
 }

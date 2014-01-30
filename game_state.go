@@ -75,6 +75,18 @@ func (gs *GameState) spawn(mode GameMode) {
 	}
 }
 
+func (gs *GameState) selectWeapon(selectedWeapon WeaponNumber) {
+	if gs.State != CS_ALIVE {
+		return
+	}
+
+	if selectedWeapon >= WPN_SAW && selectedWeapon <= WPN_PISTOL {
+		gs.SelectedWeapon = selectedWeapon
+	} else {
+		gs.SelectedWeapon = WPN_PISTOL
+	}
+}
+
 // Resets a player's game state.
 func (gs *GameState) reset() {
 	gs.Position = PlayerPosition{}

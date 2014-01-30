@@ -4,7 +4,6 @@ A game server for Cube 2: Sauerbraten, written in Go.
 
 ## To Do
 
-- fix players not seeing each others after map change
 - implement most of the network events
 - moar async
 - Fork an observation server (connects to a game as spectator, broadcasts the game data to spectators with optional delay)

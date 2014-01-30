@@ -13,7 +13,8 @@ import (
 type PacketFlag uint32
 
 const (
-	PACKET_FLAG_RELIABLE            PacketFlag = (1 << 0)
+	PACKET_FLAG_NONE                PacketFlag = 0
+	PACKET_FLAG_RELIABLE                       = (1 << 0)
 	PACKET_FLAG_UNSEQUENCED                    = (1 << 1)
 	PACKET_FLAG_NO_ALLOCATE                    = (1 << 2)
 	PACKET_FLAG_UNRELIABLE_FRAGMENT            = (1 << 3)

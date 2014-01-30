@@ -1,8 +1,5 @@
 package main
 
-// a player's position in the map/world
-type PlayerPosition Packet
-
 // client's state
 type ClientState uint
 
@@ -18,11 +15,7 @@ const (
 // The game state of a player
 type GameState struct {
 	// position of player
-	Position PlayerPosition
-
-	// buffered packets the client send which need to be sent to the other clients
-	BufferedPackets   PacketBuffer
-	HasReliablePacket bool // wether one of the packets is important and nees to be sent reliably
+	Position Packet
 
 	// fields that change at spawn
 	State          ClientState
@@ -55,6 +48,7 @@ func (gs *GameState) spawn(mode GameMode) {
 	gs.QuadTimeLeft = 0
 	gs.GunReloadTime = 0
 	gs.State = CS_ALIVE
+	gs.Tokens = 0
 
 	switch mode {
 	case GM_EFFIC, GM_EFFICTEAM, GM_EFFICCTF, GM_EFFICCOLLECT, GM_EFFICPROTECT, GM_EFFICHOLD:
@@ -89,9 +83,7 @@ func (gs *GameState) selectWeapon(selectedWeapon WeaponNumber) {
 
 // Resets a player's game state.
 func (gs *GameState) reset() {
-	gs.Position = PlayerPosition{}
-	gs.BufferedPackets = []Packet{}
-	gs.HasReliablePacket = false
+	gs.Position = Packet{}
 
 	if gs.State != CS_SPECTATOR {
 		gs.State = CS_DEAD

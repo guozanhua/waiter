@@ -1,6 +1,7 @@
 package main
 
 import (
+	"./enet"
 	"time"
 )
 
@@ -12,15 +13,6 @@ var (
 const (
 	TEN_MINUTES int32 = 20000 // 20s for testing and debugging purposes
 )
-
-func broadcastPackets() {
-	worldStateTicker := time.NewTicker(33 * time.Millisecond)
-	for {
-		<-worldStateTicker.C
-		go sendPositions()
-		go sendNetworkMessages()
-	}
-}
 
 func countDown() {
 	endTimer := time.NewTimer(time.Duration(state.TimeLeft) * time.Millisecond)
@@ -58,7 +50,7 @@ func countDown() {
 
 func intermission() {
 	// notify clients
-	clients.send(true, 1, N_TIMELEFT, 0)
+	clients.send(enet.PACKET_FLAG_RELIABLE, 1, N_TIMELEFT, 0)
 
 	// start 5 second timer
 	end := time.After(5 * time.Second)

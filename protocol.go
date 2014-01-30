@@ -1,6 +1,7 @@
 package main
 
 import (
+	"./enet"
 	"log"
 )
 
@@ -18,6 +19,9 @@ func makePacket(args ...interface{}) (p Packet) {
 
 		case byte:
 			p.putInt32(int32(v))
+
+		case []byte:
+			p.putBytes(v)
 
 		case bool:
 			if v {
@@ -54,9 +58,6 @@ func makePacket(args ...interface{}) (p Packet) {
 			p.putInt32(int32(v))
 
 		case Packet:
-			p.putBytes(v.buf)
-
-		case PlayerPosition:
 			p.putBytes(v.buf)
 
 		case GameState:
@@ -99,35 +100,40 @@ outer:
 		case N_JOIN:
 			// client sends intro and wants to join the game
 			log.Println("received N_JOIN")
-			client.join(p.getString(), p.getInt32(), p.getString(), p.getString(), p.getString())
-			//break outer
+			if client.tryToJoin(p.getString(), p.getInt32(), p.getString(), p.getString(), p.getString()) {
+				// send welcome packet
+				client.sendWelcome()
+
+				// inform other clients that a new client joined
+				client.informOthersOfJoin()
+			}
 
 		case N_AUTHANS:
 			// client sends answer to auth challenge
 			log.Println("received N_AUTHANS")
-			//break outer
 
 		case N_PING:
 			// client pinging server → send pong
-			client.send(false, 1, N_PONG, p.getInt32())
+			client.send(enet.PACKET_FLAG_NONE, 1, N_PONG, p.getInt32())
 
 		case N_CLIENTPING:
-			// client sending the amount of LAG he measured to the server → broadcast by adding to client's buffered messages
+			// client sending the amount of LAG he measured to the server → broadcast to other clients
 			client.Ping = p.getInt32()
-			client.GameState.BufferedPackets = append(client.GameState.BufferedPackets, makePacket(N_CLIENTPING, client.Ping))
+			otherPacketsToBroadcast <- PacketToBroadcast{client.CN, makePacket(N_CLIENTPING, client.Ping)}
 
 		case N_POS:
 			// client sending his position in the world
-			client.GameState.Position = PlayerPosition(p)
+			client.GameState.Position = p
+			positionPacketsToBroadcast <- PacketToBroadcast{client.CN, p}
 			break outer
 
 		case N_TEXT:
-			// client sending chat message → add to client's buffered messages
-			client.GameState.BufferedPackets = append(client.GameState.BufferedPackets, makePacket(N_TEXT, p.getString()))
+			// client sending chat message → broadcast to other clients
+			otherPacketsToBroadcast <- PacketToBroadcast{client.CN, makePacket(N_TEXT, p.getString())}
 
 		case N_SAYTEAM:
 			// client sending team chat message → pass on to team immediatly
-			client.sendToTeam(true, 1, N_SAYTEAM, client.CN, p.getString())
+			client.sendToTeam(enet.PACKET_FLAG_RELIABLE, 1, N_SAYTEAM, client.CN, p.getString())
 
 		case N_MAPCRC:
 			// client sends crc hash of his map file
@@ -137,16 +143,18 @@ outer:
 			p.getInt32()
 
 		case N_SPAWN:
-			client.spawn(p.getInt32(), p.getInt32())
-			client.GameState.BufferedPackets = append(client.GameState.BufferedPackets, makePacket(N_SPAWN, client.GameState))
+			log.Println("received N_SPAWN from", client.CN)
+			if client.tryToSpawn(p.getInt32(), p.getInt32()) {
+				otherPacketsToBroadcast <- PacketToBroadcast{client.CN, makePacket(N_SPAWN, client.GameState)}
+			}
 
 		case N_WEAPONSELECT:
 			// player changing weapon
 			selectedWeapon := WeaponNumber(p.getInt32())
 			client.GameState.selectWeapon(selectedWeapon)
 
-			// add to client's message buffer to broadcast to other clients
-			client.GameState.BufferedPackets = append(client.GameState.BufferedPackets, makePacket(N_WEAPONSELECT, selectedWeapon))
+			// broadcast to other clients
+			otherPacketsToBroadcast <- PacketToBroadcast{client.CN, makePacket(N_WEAPONSELECT, selectedWeapon)}
 
 		default:
 			log.Println(p, "on channel", channelId)

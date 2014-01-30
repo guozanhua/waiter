@@ -5,6 +5,7 @@ import (
 	"github.com/sauerbraten/jsonconf"
 	"log"
 	"runtime"
+	"time"
 )
 
 var (
@@ -22,6 +23,9 @@ var (
 
 	// server configuration
 	config Config
+
+	positionPacketsToBroadcast chan PacketToBroadcast = make(chan PacketToBroadcast)
+	otherPacketsToBroadcast    chan PacketToBroadcast = make(chan PacketToBroadcast)
 )
 
 func init() {
@@ -54,7 +58,12 @@ func main() {
 	log.Println("server running on port", config.ListenPort)
 
 	go countDown()
-	go broadcastPackets()
+
+	positionBroadcaster := newBroadcaster(positionPacketsToBroadcast, true, func(cn ClientNumber, buf *[]byte) Packet { return Packet{} }, enet.PACKET_FLAG_NO_ALLOCATE, 0, 33*time.Millisecond)
+	otherPacketsBroadcaster := newBroadcaster(otherPacketsToBroadcast, false, func(cn ClientNumber, buf *[]byte) Packet { return makePacket(N_CLIENT, cn, len(*buf)) }, enet.PACKET_FLAG_NO_ALLOCATE|enet.PACKET_FLAG_RELIABLE, 1, 33*time.Millisecond)
+
+	go positionBroadcaster.run()
+	go otherPacketsBroadcaster.run()
 
 	for {
 		event := host.Service(5)

@@ -16,6 +16,7 @@ A game server for Cube 2: Sauerbraten, written in Go.
 | file                     | used for                                                                                                                                |
 | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
 | auth.go                  | implementation of functions related to Sauer's authentication mechanism                                                                 |
+| broadcast.go             | implements broadcasting the world state (player event messages & player positions)                                                       |
 | client.go                | everything related to a client (send methods for example)                                                                               |
 | config.go                | the configuration stuff which the config.json file is read into                                                                         |
 | config.json              | the configuration file for the user to set up the server                                                                                |
@@ -28,7 +29,6 @@ A game server for Cube 2: Sauerbraten, written in Go.
 | protocol.go              | processing of incoming packets; building of outgoing packets                                                                            |
 | server_state.go          | defines the `ServerState` type and methods on it which change the server state, e.g. `changeMap()`                                      |
 | timing.go                | stuff needed for timing of things; intermission handling                                                                                |
-| world_state.go           | functions to broadcast the world state (player event messages & player positions)                                                       |
 
 ## License
 

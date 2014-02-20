@@ -2,6 +2,7 @@ package main
 
 import (
 	"./enet"
+	"log"
 	"time"
 )
 
@@ -20,7 +21,7 @@ type Broadcaster struct {
 	groupedPackets     map[ClientNumber]*Packet
 }
 
-func newBroadcaster(packetsToBroadcast chan PacketToBroadcast, replacePrevious bool, clientPartPrefix func(ClientNumber, *[]byte) Packet, flags enet.PacketFlag, channel uint8, interval time.Duration) *Broadcaster {
+func newBroadcaster(packetsToBroadcast chan PacketToBroadcast, replacePrevious bool, interval time.Duration, clientPartPrefix func(ClientNumber, *[]byte) Packet, flags enet.PacketFlag, channel uint8) *Broadcaster {
 	return &Broadcaster{
 		PacketsToBroadcast: packetsToBroadcast,
 		replacePrevious:    replacePrevious,
@@ -66,7 +67,12 @@ func (b *Broadcaster) flush() {
 		}
 	}
 
+	if masterPacket.len() == 0 {
+		return
+	}
+
 	masterPacket.putBytes(masterPacket.buf)
+	log.Println(masterPacket)
 
 	pos := 0
 	for _, client := range clients {
@@ -80,8 +86,8 @@ func (b *Broadcaster) flush() {
 		}
 
 		if masterPacket.len() == length*2 {
-			// only this client connected
-			return
+			// only the client's own packages are in the master packet
+			continue
 		}
 
 		client.send(b.flags, b.channel, masterPacket.buf[pos:pos+(masterPacket.len()/2)-length])

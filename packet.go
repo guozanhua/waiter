@@ -1,12 +1,97 @@
 package main
 
+import (
+	"log"
+)
+
 type Packet struct {
 	buf []byte
 	pos int
 }
 
+func NewPacket(args ...interface{}) Packet {
+	p := Packet{}
+	p.put(args...)
+	return p
+}
+
 func (p *Packet) len() int {
 	return len(p.buf)
+}
+
+func (p *Packet) clear() {
+	p.buf = p.buf[:0]
+	p.pos = 0
+}
+
+// Appends all arguments to the packet.
+func (p *Packet) put(args ...interface{}) {
+	for _, arg := range args {
+		switch v := arg.(type) {
+		case int32:
+			p.putInt32(v)
+
+		case int:
+			p.putInt32(int32(v))
+
+		case byte:
+			p.putInt32(int32(v))
+
+		case []byte:
+			p.putBytes(v)
+
+		case bool:
+			if v {
+				p.putInt32(1)
+			} else {
+				p.putInt32(0)
+			}
+
+		case string:
+			p.putString(v)
+
+		case NetworkMessageCode:
+			p.putInt32(int32(v))
+
+		case MasterMode:
+			p.putInt32(int32(v))
+
+		case GameMode:
+			p.putInt32(int32(v))
+
+		case ClientNumber:
+			p.putInt32(int32(v))
+
+		case ClientState:
+			p.putInt32(int32(v))
+
+		case WeaponNumber:
+			p.putInt32(int32(v))
+
+		case ArmourType:
+			p.putInt32(int32(v))
+
+		case DisconnectReason:
+			p.putInt32(int32(v))
+
+		case Packet:
+			p.putBytes(v.buf)
+
+		case GameState:
+			p.putInt32(v.LifeSequence)
+			p.putInt32(v.Health)
+			p.putInt32(v.MaxHealth)
+			p.putInt32(v.Armour)
+			p.putInt32(int32(v.ArmourType))
+			p.putInt32(int32(v.SelectedWeapon))
+			for _, ammo := range v.Ammo {
+				p.putInt32(ammo)
+			}
+
+		default:
+			log.Printf("unhandled type %T of arg %v\n", v, v)
+		}
+	}
 }
 
 // Appends a []byte to the end of the packet.
@@ -76,7 +161,7 @@ func (p *Packet) getUint32() int32 {
 func (p *Packet) getString() string {
 	buf := []byte{}
 
-	for b := p.getByte(); b != 0x00; b = p.getByte() {
+	for b := p.getByte(); b != 0x0; b = p.getByte() {
 		buf = append(buf, b)
 	}
 

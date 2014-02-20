@@ -7,78 +7,6 @@ import (
 
 const PROTOCOL_VERSION int32 = 259
 
-// makes a new packet containing all the values in args
-func makePacket(args ...interface{}) (p Packet) {
-	for _, arg := range args {
-		switch v := arg.(type) {
-		case int32:
-			p.putInt32(v)
-
-		case int:
-			p.putInt32(int32(v))
-
-		case byte:
-			p.putInt32(int32(v))
-
-		case []byte:
-			p.putBytes(v)
-
-		case bool:
-			if v {
-				p.putInt32(1)
-			} else {
-				p.putInt32(0)
-			}
-
-		case string:
-			p.putString(v)
-
-		case NetworkMessageCode:
-			p.putInt32(int32(v))
-
-		case MasterMode:
-			p.putInt32(int32(v))
-
-		case GameMode:
-			p.putInt32(int32(v))
-
-		case ClientNumber:
-			p.putInt32(int32(v))
-
-		case ClientState:
-			p.putInt32(int32(v))
-
-		case WeaponNumber:
-			p.putInt32(int32(v))
-
-		case ArmourType:
-			p.putInt32(int32(v))
-
-		case DisconnectReason:
-			p.putInt32(int32(v))
-
-		case Packet:
-			p.putBytes(v.buf)
-
-		case GameState:
-			p.putInt32(v.LifeSequence)
-			p.putInt32(v.Health)
-			p.putInt32(v.MaxHealth)
-			p.putInt32(v.Armour)
-			p.putInt32(int32(v.ArmourType))
-			p.putInt32(int32(v.SelectedWeapon))
-			for _, ammo := range v.Ammo {
-				p.putInt32(ammo)
-			}
-
-		default:
-			log.Printf("unhandled type %T of arg %v\n", v, v)
-		}
-	}
-
-	return
-}
-
 // parses a packet and decides what to do based on the network message code at the front of the packet
 func parsePacket(fromCN ClientNumber, channelId uint8, p Packet) {
 	if fromCN < 0 || channelId > 2 {
@@ -119,7 +47,7 @@ outer:
 		case N_CLIENTPING:
 			// client sending the amount of LAG he measured to the server → broadcast to other clients
 			client.Ping = p.getInt32()
-			otherPacketsToBroadcast <- PacketToBroadcast{client.CN, makePacket(N_CLIENTPING, client.Ping)}
+			otherPacketsToBroadcast <- PacketToBroadcast{client.CN, NewPacket(N_CLIENTPING, client.Ping)}
 
 		case N_POS:
 			// client sending his position in the world
@@ -129,7 +57,7 @@ outer:
 
 		case N_TEXT:
 			// client sending chat message → broadcast to other clients
-			otherPacketsToBroadcast <- PacketToBroadcast{client.CN, makePacket(N_TEXT, p.getString())}
+			otherPacketsToBroadcast <- PacketToBroadcast{client.CN, NewPacket(N_TEXT, p.getString())}
 
 		case N_SAYTEAM:
 			// client sending team chat message → pass on to team immediatly
@@ -145,7 +73,7 @@ outer:
 		case N_SPAWN:
 			log.Println("received N_SPAWN from", client.CN)
 			if client.tryToSpawn(p.getInt32(), p.getInt32()) {
-				otherPacketsToBroadcast <- PacketToBroadcast{client.CN, makePacket(N_SPAWN, client.GameState)}
+				otherPacketsToBroadcast <- PacketToBroadcast{client.CN, NewPacket(N_SPAWN, client.GameState)}
 			}
 
 		case N_WEAPONSELECT:
@@ -154,7 +82,7 @@ outer:
 			client.GameState.selectWeapon(selectedWeapon)
 
 			// broadcast to other clients
-			otherPacketsToBroadcast <- PacketToBroadcast{client.CN, makePacket(N_WEAPONSELECT, selectedWeapon)}
+			otherPacketsToBroadcast <- PacketToBroadcast{client.CN, NewPacket(N_WEAPONSELECT, selectedWeapon)}
 
 		default:
 			log.Println(p, "on channel", channelId)

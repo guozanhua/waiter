@@ -10,7 +10,7 @@ import (
 
 var (
 	// global enet host var (to call Flush() on)
-	host enet.Host
+	host *enet.Host
 
 	// global variable to indicate to the main loop that there are packets to be sent
 	mustFlush = false
@@ -43,6 +43,7 @@ func init() {
 		TimeLeft:    TEN_MINUTES,
 		NotGotItems: true,
 		HasMaster:   false,
+		UpSince:     time.Now(),
 	}
 
 	runtime.GOMAXPROCS(config.CPUCores)
@@ -50,17 +51,19 @@ func init() {
 
 func main() {
 	var err error
-	host, err = enet.StartServer(config.ListenAddress, config.ListenPort)
+	host, err = enet.NewHost(config.ListenAddress, config.ListenPort)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	log.Println("server running on port", config.ListenPort)
 
+	go serveStateInfo()
+
 	go countDown()
 
-	positionBroadcaster := newBroadcaster(positionPacketsToBroadcast, true, func(cn ClientNumber, buf *[]byte) Packet { return Packet{} }, enet.PACKET_FLAG_NO_ALLOCATE, 0, 33*time.Millisecond)
-	otherPacketsBroadcaster := newBroadcaster(otherPacketsToBroadcast, false, func(cn ClientNumber, buf *[]byte) Packet { return makePacket(N_CLIENT, cn, len(*buf)) }, enet.PACKET_FLAG_NO_ALLOCATE|enet.PACKET_FLAG_RELIABLE, 1, 33*time.Millisecond)
+	positionBroadcaster := newBroadcaster(positionPacketsToBroadcast, true, 33*time.Millisecond, func(cn ClientNumber, buf *[]byte) Packet { return Packet{} }, enet.PACKET_FLAG_NO_ALLOCATE, 0)
+	otherPacketsBroadcaster := newBroadcaster(otherPacketsToBroadcast, false, 33*time.Millisecond, func(cn ClientNumber, buf *[]byte) Packet { p := Packet{}; p.put(N_CLIENT, cn, len(*buf)); return p }, enet.PACKET_FLAG_NO_ALLOCATE|enet.PACKET_FLAG_RELIABLE, 1)
 
 	go positionBroadcaster.run()
 	go otherPacketsBroadcaster.run()

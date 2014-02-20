@@ -78,7 +78,7 @@ func addClient(peer *enet.Peer) *Client {
 
 // Sends a packet to a client (reliable if desired) over the specified channel.
 func (client *Client) send(flags enet.PacketFlag, channel uint8, args ...interface{}) {
-	p := makePacket(args...)
+	p := NewPacket(args...)
 
 	mustFlush = true
 

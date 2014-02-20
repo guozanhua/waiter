@@ -26,7 +26,11 @@
 	//"server_auth_domains": ["dev", "dev:registered_users", "dev:masters", "dev:admins"]
 	"server_auth_domains": [""],
 
+	// wether ot not to send client's IPs via extinfo. when set to true, the first 3 bytes of the IPs will be sent (e.g. 53.253.53.0),
+	// otherwise, "0.0.0.0" will be sent for every client.
+	"send_client_ips_via_extinfo": false,
+
 
 	// number of cpu cores to use; >= 1 recommended ;)
-	"cpu_cores": 2
+	"cpu_cores": 4
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"./enet"
+	"time"
 )
 
 type ServerState struct {
@@ -11,6 +12,7 @@ type ServerState struct {
 	TimeLeft    int32 // in milliseconds
 	NotGotItems bool
 	HasMaster   bool
+	UpSince     time.Time
 }
 
 func (state *ServerState) changeMap(mapName string) {

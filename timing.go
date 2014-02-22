@@ -11,7 +11,7 @@ var (
 )
 
 const (
-	TEN_MINUTES int32 = 180000 // 20s for testing and debugging purposes
+	TEN_MINUTES int32 = 180000 // 3 minutes for testing and debugging purposes
 )
 
 func countDown() {

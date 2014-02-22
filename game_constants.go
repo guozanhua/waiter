@@ -212,8 +212,8 @@ const (
 type MasterMode int32
 
 const (
-	MM_AUTH MasterMode = -1
-	MM_OPEN            = iota
+	MM_AUTH MasterMode = iota - 1
+	MM_OPEN
 	MM_VETO
 	MM_LOCKED
 	MM_PRIVATE

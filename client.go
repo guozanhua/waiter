@@ -18,6 +18,17 @@ func (cs Clients) send(flags enet.PacketFlag, channel uint8, args ...interface{}
 	}
 }
 
+// Returns the number of connected clients.
+func (cs Clients) numberOfClientsInUse() (n int32) {
+	for _, c := range cs {
+		if !c.InUse {
+			continue
+		}
+		n++
+	}
+	return
+}
+
 // A player's cn
 type ClientNumber int32
 

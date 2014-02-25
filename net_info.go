@@ -9,11 +9,11 @@ import (
 
 // Protocol constants
 const (
+	NET_INFO_PROTOCOL_VERSION = 105
+
 	// Constants describing the type of information to query for
 	EXTENDED_INFO = 0
 	BASIC_INFO    = 1
-
-	NET_INFO_VERSION = 105
 
 	EXTENDED_INFO_ACK      = -1
 	EXTENDED_INFO_ERROR    = 1
@@ -36,14 +36,14 @@ func serveStateInfo() {
 		return
 	}
 
-	log.Println("listening for info requests on", laddr.String())
-
 	conn, err := net.ListenUDP("udp", laddr)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 	defer conn.Close()
+
+	log.Println("listening for info requests on", laddr.String())
 
 	for {
 		buf := make([]byte, 16)
@@ -94,7 +94,7 @@ func sendBasicInfo(conn *net.UDPConn, raddr *net.UDPAddr) {
 
 	p.put(clients.numberOfClientsInUse())
 	p.putInt32(5) // this implementation never sends information about the server being paused or not and the gamespeed
-	p.put(NET_INFO_VERSION)
+	p.put(NET_INFO_PROTOCOL_VERSION)
 	p.put(state.GameMode)
 	p.putInt32(state.TimeLeft / 1000)
 	p.put(config.MaxClients)
@@ -113,12 +113,19 @@ func sendBasicInfo(conn *net.UDPConn, raddr *net.UDPAddr) {
 }
 
 func sendUptime(conn *net.UDPConn, raddr *net.UDPAddr) {
-	p := NewPacket(0, EXTENDED_INFO_UPTIME, EXTENDED_INFO_ACK, NET_INFO_VERSION, int(time.Since(state.UpSince)/time.Second))
-	conn.WriteToUDP(p.buf, raddr)
+	p := NewPacket(0, EXTENDED_INFO_UPTIME, EXTENDED_INFO_ACK, NET_INFO_PROTOCOL_VERSION, int(time.Since(state.UpSince)/time.Second))
+	n, err := conn.WriteToUDP(p.buf, raddr)
+	if err != nil {
+		log.Println(err)
+	}
+
+	if n != p.len() {
+		log.Println("packet length and sent length didn't match!", p.buf)
+	}
 }
 
 func sendPlayerStats(cn int, conn *net.UDPConn, raddr *net.UDPAddr) {
-	p := NewPacket(0, EXTENDED_INFO_PLAYER_STATS, cn, EXTENDED_INFO_ACK, NET_INFO_VERSION)
+	p := NewPacket(0, EXTENDED_INFO_PLAYER_STATS, cn, EXTENDED_INFO_ACK, NET_INFO_PROTOCOL_VERSION)
 
 	if cn < -1 || cn > len(clients) {
 		p.put(EXTENDED_INFO_ERROR)
@@ -198,6 +205,7 @@ func sendPlayerStats(cn int, conn *net.UDPConn, raddr *net.UDPAddr) {
 	} else {
 		client := clients[ClientNumber(cn)]
 		p.put(EXTENDED_INFO_PLAYER_STATS_RESPONSE_STATS, client.CN, client.Ping, client.Name, client.Team, client.GameState.Frags, client.GameState.Flags, client.GameState.Deaths, client.GameState.Teamkills, client.GameState.Damage*100/max(client.GameState.ShotDamage, 1), client.GameState.Health, client.GameState.Armour, client.GameState.SelectedWeapon, client.Privilege, client.GameState.State)
+
 		if config.SendClientIPsViaExtinfo {
 			p.put(client.Peer.Address.IP[:2]) // only 3 first bytes
 		} else {
@@ -212,8 +220,6 @@ func sendPlayerStats(cn int, conn *net.UDPConn, raddr *net.UDPAddr) {
 		if n != p.len() {
 			log.Println("packet length and sent length didn't match!", p.buf)
 		}
-
-		p.clear()
 	}
 }
 

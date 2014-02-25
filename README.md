@@ -16,19 +16,20 @@ A game server for Cube 2: Sauerbraten, written in Go.
 | file                     | used for                                                                                                                                |
 | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
 | auth.go                  | implementation of functions related to Sauer's authentication mechanism                                                                 |
-| broadcast.go             | implements broadcasting the world state (player event messages & player positions)                                                      |
+| broadcaster.go           | implements broadcasting the world state (player event messages & player positions)                                                      |
 | client.go                | everything related to a client (send methods for example)                                                                               |
+| client_game_state.go     | a client's state in a game                                                                                                              |
 | config.go                | the configuration stuff which the config.json file is read into                                                                         |
 | config.json              | the configuration file for the user to set up the server                                                                                |
-| game_constants.go        | constants which are used by server and client (e.g. initial ammo depending on mode, game modes, privileges, etc.)                       |
-| game_state.go            | a client's state in a game                                                                                                              |
+| game_constants.go        | constants which are used by server and client (e.g. game modes, privileges, etc.) & initial ammo depending on mode etc.                 |
+| game_timing.go           | handles game time (counting down the time left) and intermission (game ending)                                                          |
 | main.go                  | initialization of server (reading of config files, starting of needed goroutines) and server's main loop listening for incoming packets |
 | map_rotation.go          | contains sets of maps used for map rotations in the current mode                                                                        |
+| net_info.go              | handles communication on the info port (used to query server state information without joining the game, e.g. in the server browser)    |
 | network_message_codes.go | lists all the network message codes used for communication                                                                              |
-| packet.go                | a Sauerbraten network event packet, plus methods to read and manipulate it                                                              |
-| protocol.go              | processing of incoming packets; building of outgoing packets                                                                            |
+| packet.go                | building of outgoing packets, plus methods to read and manipulate them                                                                  |
+| protocol.go              | processing of incoming packets                                                                                                          |
 | server_state.go          | defines the `ServerState` type and methods on it which change the server state, e.g. `changeMap()`                                      |
-| timing.go                | stuff needed for timing of things; intermission handling                                                                                |
 
 ## License
 

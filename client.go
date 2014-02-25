@@ -55,7 +55,7 @@ type Client struct {
 	ReasonWhyAuthNeeded DisconnectReason // e.g. server is in private mode
 	AI                  bool             // wether this is a bot or not
 	AISkill             int32
-	InUse               bool // true if this client object is in use in the actual game
+	InUse               bool // true if this client's *enet.Peer is in use (i.e. the client object belongs to a connection)
 	Peer                *enet.Peer
 	SessionId           int32
 	Ping                int32

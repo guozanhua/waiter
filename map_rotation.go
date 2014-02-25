@@ -2,6 +2,7 @@ package main
 
 type MapRotation []string
 
+// temporary set of maps used in development phase
 var mapRotation = MapRotation{
 	"hashi",
 	"ot",

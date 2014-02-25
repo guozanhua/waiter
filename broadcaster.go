@@ -59,10 +59,10 @@ func (b *Broadcaster) flush() {
 			if p.len() == 0 {
 				continue
 			}
-			prefix := b.clientPartPrefix(client.CN, &(p.buf)).buf
-			masterPacket.putBytes(prefix)
+			prefix := b.clientPartPrefix(client.CN, &(p.buf))
+			masterPacket.putBytes(prefix.buf)
 			masterPacket.putBytes(p.buf)
-			packetLengths[client.CN] = len(prefix) + p.len()
+			packetLengths[client.CN] = prefix.len() + p.len()
 			b.groupedPackets[client.CN] = &Packet{}
 		}
 	}

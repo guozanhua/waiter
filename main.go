@@ -63,7 +63,7 @@ func main() {
 	go countDown()
 
 	positionBroadcaster := newBroadcaster(positionPacketsToBroadcast, true, 33*time.Millisecond, func(cn ClientNumber, buf *[]byte) Packet { return Packet{} }, enet.PACKET_FLAG_NO_ALLOCATE, 0)
-	otherPacketsBroadcaster := newBroadcaster(otherPacketsToBroadcast, false, 33*time.Millisecond, func(cn ClientNumber, buf *[]byte) Packet { p := Packet{}; p.put(N_CLIENT, cn, len(*buf)); return p }, enet.PACKET_FLAG_NO_ALLOCATE|enet.PACKET_FLAG_RELIABLE, 1)
+	otherPacketsBroadcaster := newBroadcaster(otherPacketsToBroadcast, false, 33*time.Millisecond, func(cn ClientNumber, buf *[]byte) Packet { return NewPacket(N_CLIENT, cn, len(*buf)) }, enet.PACKET_FLAG_NO_ALLOCATE|enet.PACKET_FLAG_RELIABLE, 1)
 
 	go positionBroadcaster.run()
 	go otherPacketsBroadcaster.run()
